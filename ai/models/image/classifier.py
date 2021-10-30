@@ -20,11 +20,13 @@ class ImageClassifier(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         return self.model(inputs, training=training)
 
+    @tf.function
     def query(self, images, classes, training):
         outputs = self.model(images, training=training)
         loss = ai.losses.classification.classification_loss(classes, outputs)
         return tf.reduce_mean(loss)
 
+    @tf.function
     def train(self, images, classes):
         with tf.GradientTape() as tape:
             loss = self.query(images, classes, True)

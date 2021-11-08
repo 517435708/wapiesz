@@ -1,8 +1,8 @@
 import tensorflow as tf
 import ai
-
-
-class TextMeme(tf.keras.Model):
+# TODO prepare model!
+#   - add loss function
+class TM_Model(tf.keras.Model):
 
     def __init__(self, verbose=False):
         super().__init__(name='text_meme')
@@ -19,7 +19,6 @@ class TextMeme(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         return self.model(inputs, training=training)
 
-    #add loss function
     @tf.function
     def query(self, images, classes, training):
         # outputs = self.model(images, training=training)

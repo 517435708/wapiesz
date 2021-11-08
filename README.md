@@ -12,19 +12,11 @@
 ## Datasets
 [TODO]
 
- - [ ] find better datasets!!!!
- - [x] before start run [unzip-from-link.sh](unzip-from-link.sh) or [download-dataset.py](download-dataset.py)
+We are using dataset from github repository [schesa/ImgFlip575K_Dataset](https://github.com/schesa/ImgFlip575K_Dataset)
 
-#### example unzip-from-link.sh usage:
+#### how to use
 
-`bash unzip-from-link.sh "www.cs.cornell.edu/~cristian/data/cornell_movie_dialogs_corpus.zip" "./datasets/"`
-
-#### example of download-dataset.py usage:
-
-`python download-dataset.py -u https://www.cs.cornell.edu/~cristian/data/cornell_movie_dialogs_corpus.zip -e ./datasets/
-`
-
----
+`git clone git@github.com:schesa/ImgFlip575K_Dataset.git`
 
 
 ## progress

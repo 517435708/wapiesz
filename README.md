@@ -15,9 +15,9 @@
 We are using dataset from github repository [schesa/ImgFlip575K_Dataset](https://github.com/schesa/ImgFlip575K_Dataset)
 
 #### how to use
-
+Open terminal in project location and type:
 `git clone git@github.com:schesa/ImgFlip575K_Dataset.git`
-
+so it is in same directory as `ai` and `datasets`.
 
 ## progress
 tested on GPUs:

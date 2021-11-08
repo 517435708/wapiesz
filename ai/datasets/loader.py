@@ -8,7 +8,7 @@ memes_file = Path(__file__).parent / '../../datasets/memes.csv'
 
 
 def import_memes(refresh=False):
-    if os.path.isfile(memes_file) and refresh == False:
+    if os.path.isfile(memes_file) and not refresh:
         print('### memes.csv already exists ###')
         return
 

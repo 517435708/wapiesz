@@ -30,10 +30,9 @@ query(images, classes, False)
 train(images, classes)
 
 import time
-
 start = time.time()
 for i in range(100):
-    query(images, classes, False)
+    query(images, classes, True)
 end = time.time()
 print(f'time {end - start}')
 

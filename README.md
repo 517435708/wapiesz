@@ -27,4 +27,13 @@ tested on GPUs:
 
 ---
 
+### jobs
+
+[BlaiseCz](https://github.com/BlaiseCz):
+- [x] prepare project architecture
+- [ ] prepare datasets
+- [ ] complete README.md
+
+
+
 

@@ -4,10 +4,18 @@ import ai
 #   - add loss function
 class TM_Model(tf.keras.Model):
 
-    def __init__(self, verbose=False):
+    def __init__(self, num_classes, verbose=False):
         super().__init__(name='text_meme')
 
-        self.model = tf.keras.Sequential([
+        self.memes = tf.keras.Sequential([
+
+        ])
+
+        self.text = tf.keras.Sequential([
+
+        ])
+
+        self.multimodal = tf.keras.Sequential([
 
         ])
 

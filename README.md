@@ -11,7 +11,7 @@
 
 ## Datasets
 [TODO]
-
+We need to find better datasets!
 We are using dataset from github repository [schesa/ImgFlip575K_Dataset](https://github.com/schesa/ImgFlip575K_Dataset)
 
 #### how to use

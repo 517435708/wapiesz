@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import os
 import json
 from pathlib import Path
@@ -9,7 +8,7 @@ from sklearn.model_selection import train_test_split
 imgflip_dir = Path(__file__).parent / '../../ImgFlip575K_Dataset/dataset/memes/'
 memes_file = Path(__file__).parent / '../../datasets/memes.csv'
 
-
+#TODO find good dataset
 def import_memes(refresh=False):
     if os.path.isfile(memes_file) and not refresh:
         print('### memes.csv already exists ###')

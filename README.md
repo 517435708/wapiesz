@@ -13,7 +13,10 @@
 [TODO]
 We need to find better datasets!
 
+currently working with https://www.kaggle.com/williamscott701/memotion-dataset-7k
+
 #### how to use
+https://www.kaggle.com/c/two-sigma-financial-news/discussion/83593
 
 ## progress
 tested on GPUs:

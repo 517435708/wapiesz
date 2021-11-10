@@ -2,11 +2,12 @@ import pandas as pd
 import os
 import json
 from pathlib import Path
+import kaggle
 
 from sklearn.model_selection import train_test_split
 
-imgflip_dir = Path(__file__).parent / '../../ImgFlip575K_Dataset/dataset/memes/'
-memes_file = Path(__file__).parent / '../../datasets/memes.csv'
+dataset_path = Path(__file__).parent / '../../datasets/'
+memes_file = Path(__file__).parent / '../../datasets/memotion_dataset_7k/labels.csv'
 
 #TODO find good dataset
 def import_memes(refresh=False):
@@ -14,23 +15,10 @@ def import_memes(refresh=False):
         print('### memes.csv already exists ###')
         return
 
-    file_list = [pos_json for pos_json in os.listdir(imgflip_dir) if pos_json.endswith('.json')]
-    dfs = []
-
-    for file in file_list:
-        with open(os.path.join(imgflip_dir / file), 'r') as json_data:
-            data = json.load(json_data)
-            df = pd.DataFrame(data)
-            A = pd.json_normalize(df['metadata'])
-
-            df = pd.concat([df, A], axis=1)
-            df = df.drop(['url', 'post', 'metadata', 'views', 'img-votes', 'author'], axis=1)
-
-            dfs.append(df)  # append the data frame to the list
-            break
-
-    temp = pd.concat(dfs, ignore_index=True)  #
-    temp.to_csv('../datasets/memes.csv', sep='\t')
+    # kaggle datasets download -d williamscott701/memotion-dataset-7k
+    kaggle.api.authenticate()
+    kaggle.api.dataset_download_files('williamscott701/memotion-dataset-7k', path=dataset_path,
+                                      unzip=True)
 
 
 def get_memes_dataframe():

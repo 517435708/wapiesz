@@ -1,5 +1,16 @@
-import ai
+import ai.datasets.loader as loader
+"""
+    Before any work set all True
+"""
+# memes dataset
+reload = False
+if reload:
+    loader.import_memes()
 
-# memes
-ai.datasets.loader.import_memes(refresh=True)
-print(ai.datasets.loader.get_memes_dataframe())
+upload_images = False
+if upload_images:
+    loader.download_images()
+
+loader.prepare_text()
+
+print(loader.get_memes_dataframe())

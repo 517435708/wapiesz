@@ -1,40 +1,49 @@
 import pandas as pd
-import os
-import json
-from pathlib import Path
-
+import kaggle
+from PIL import Image
 from sklearn.model_selection import train_test_split
 
-imgflip_dir = Path(__file__).parent / '../../ImgFlip575K_Dataset/dataset/memes/'
-memes_file = Path(__file__).parent / '../../datasets/memes.csv'
+from ai.datasets.helper import download_img, strim_and_lower
 
-#TODO find good dataset
-def import_memes(refresh=False):
-    if os.path.isfile(memes_file) and not refresh:
-        print('### memes.csv already exists ###')
-        return
+datasets_path = '../datasets'
+kaggle_img_path = datasets_path + '/memes_reference_data.tsv'
+kaggle_text_path = datasets_path + '/memes_data.tsv'
 
-    file_list = [pos_json for pos_json in os.listdir(imgflip_dir) if pos_json.endswith('.json')]
-    dfs = []
+memes_file = datasets_path + '/memes_txt/memes_data.csv'
+memes_path = datasets_path + '/memes_img/'
 
-    for file in file_list:
-        with open(os.path.join(imgflip_dir / file), 'r') as json_data:
-            data = json.load(json_data)
-            df = pd.DataFrame(data)
-            A = pd.json_normalize(df['metadata'])
+def import_memes():
+    dataset = 'abhishtagatya/imgflipscraped-memes-caption-dataset'
+    kaggle.api.authenticate()
+    kaggle.api.dataset_download_files(dataset, path='../datasets',
+                                      unzip=True)
 
-            df = pd.concat([df, A], axis=1)
-            df = df.drop(['url', 'post', 'metadata', 'views', 'img-votes', 'author'], axis=1)
 
-            dfs.append(df)  # append the data frame to the list
-            break
+def download_images():
+    data = pd.read_csv(kaggle_img_path, sep='\t')
+    img_data = data[['BaseImageURL', 'MemeLabel']]
+    img_data.apply(lambda row: download_img(row['BaseImageURL'], strim_and_lower(row['MemeLabel'])), axis=1)
 
-    temp = pd.concat(dfs, ignore_index=True)  #
-    temp.to_csv('../datasets/memes.csv', sep='\t')
+
+def prepare_text():
+    data = pd.read_csv(kaggle_text_path, sep='\t')
+    data = data.drop(columns=['ImageURL', 'AltText', 'HashId'])
+    data['MemeLabel'] = data.apply(lambda row: strim_and_lower(row['MemeLabel']), axis=1)
+    data.to_csv(memes_file, sep='\t', index=False)
 
 
 def get_memes_dataframe():
     return pd.read_csv(memes_file, sep='\t')
+
+def get_PIL_images():
+    pil_images_list = []
+
+    import glob
+    for filename in glob.glob(memes_path + '/*.jpg'):  
+        im = Image.open(filename)
+        pil_images_list.append(im)
+        
+    return pil_images_list
 
 
 def train_validate_test_split(df, label_column, train_percent=.6, validate_percent=.4, train_test_ratio=0.5):

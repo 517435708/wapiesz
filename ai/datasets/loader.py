@@ -12,6 +12,7 @@ kaggle_text_path = datasets_path + '/memes_data.tsv'
 memes_file = datasets_path + '/memes_txt/memes_data.csv'
 memes_path = datasets_path + '/memes_img/'
 
+
 def import_memes():
     dataset = 'abhishtagatya/imgflipscraped-memes-caption-dataset'
     kaggle.api.authenticate()
@@ -35,14 +36,15 @@ def prepare_text():
 def get_memes_dataframe():
     return pd.read_csv(memes_file, sep='\t')
 
+
 def get_PIL_images():
     pil_images_list = []
 
     import glob
-    for filename in glob.glob(memes_path + '/*.jpg'):  
+    for filename in glob.glob(memes_path + '/*.jpg'):
         im = Image.open(filename)
         pil_images_list.append(im)
-        
+
     return pil_images_list
 
 

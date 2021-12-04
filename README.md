@@ -26,8 +26,14 @@ streamlit run memenet/app.py
 `tensorflow==2.4.0`
 
 ## Datasets
-[TODO]
-We need to find better datasets!
+Run [playground_dataset](ai/playground_datasets.py) if any problem occurs try:
+```
+1.pip install kaggle
+2.cd ~/.kaggle
+3.homepage www.kaggle.com -> Your Account -> Create New API token
+4.mv ~/Downloads/kaggle.json ./
+5.chmod 600 ./kaggle.json 
+```
 
 #### how to use
 

@@ -7,5 +7,5 @@ def download_img(image_url, img_name):
         handler.write(img_data)
 
 
-def strim_and_lower(txt):
+def strip_and_lower(txt):
     return txt.replace(" ", "").lower()

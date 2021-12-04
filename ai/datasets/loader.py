@@ -3,7 +3,7 @@ import kaggle
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-from ai.datasets.helper import download_img, strim_and_lower
+from ai.datasets.helper import download_img, strip_and_lower
 
 datasets_path = '../datasets'
 kaggle_img_path = datasets_path + '/memes_reference_data.tsv'
@@ -23,13 +23,13 @@ def import_memes():
 def download_images():
     data = pd.read_csv(kaggle_img_path, sep='\t')
     img_data = data[['BaseImageURL', 'MemeLabel']]
-    img_data.apply(lambda row: download_img(row['BaseImageURL'], strim_and_lower(row['MemeLabel'])), axis=1)
+    img_data.apply(lambda row: download_img(row['BaseImageURL'], strip_and_lower(row['MemeLabel'])), axis=1)
 
 
 def prepare_text():
     data = pd.read_csv(kaggle_text_path, sep='\t')
     data = data.drop(columns=['ImageURL', 'AltText', 'HashId'])
-    data['MemeLabel'] = data.apply(lambda row: strim_and_lower(row['MemeLabel']), axis=1)
+    data['MemeLabel'] = data.apply(lambda row: strip_and_lower(row['MemeLabel']), axis=1)
     data.to_csv(memes_file, sep='\t', index=False)
 
 

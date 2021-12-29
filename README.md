@@ -13,10 +13,10 @@
 # 2. install requirements
 pip install -r requirements.txt
 
-(if you need *2vec models)
+(if you need doc2vec model)
 # 3. download model from https://github.com/kongyq/Pretrained_Wikipedia_Doc2Vec_Models 
 and add it to memenet/data 
-and go to [Datasets section](#Datasets)
+and go to: Datasets section
 NOTE: prepared vectors: https://drive.google.com/file/d/1OiW03hEBjwM5ODuy3a3un2TySZQp_DXl/view?usp=sharing
 
 # 4. train imgnet and txtnet
@@ -26,11 +26,10 @@ python -m memenet.train
 # 5. run streamlit app
 streamlit run memenet/app.py
 ```
-
 ## important libraries
 
 `tensorflow==2.4.0`
-
+<a name="custom_anchor_name"></a>
 ## Datasets
 Run [playground_dataset](ai/playground_datasets.py) if any problem occurs try:
 ```

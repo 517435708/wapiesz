@@ -13,11 +13,17 @@
 # 2. install requirements
 pip install -r requirements.txt
 
-# 3. train imgnet and txtnet
+(if you need *2vec models)
+# 3. download model from https://github.com/kongyq/Pretrained_Wikipedia_Doc2Vec_Models 
+and add it to memenet/data 
+and go to [Datasets section](#Datasets)
+NOTE: prepared vectors: https://drive.google.com/file/d/1OiW03hEBjwM5ODuy3a3un2TySZQp_DXl/view?usp=sharing
+
+# 4. train imgnet and txtnet
 # run this cmd in the same directory as README.md
 python -m memenet.train
 
-# 4. run streamlit app
+# 5. run streamlit app
 streamlit run memenet/app.py
 ```
 
@@ -34,6 +40,7 @@ Run [playground_dataset](ai/playground_datasets.py) if any problem occurs try:
 4.mv ~/Downloads/kaggle.json ./
 5.chmod 600 ./kaggle.json 
 ```
+Then run [make_dataset](memenet/make_dataset.py), so you get vec_txt and vec_img csv files
 
 #### how to use
 
@@ -49,7 +56,7 @@ tested on GPUs:
 
 [BlaiseCz](https://github.com/BlaiseCz):
 - [x] prepare project architecture
-- [ ] prepare datasets
+- [x] prepare datasets
 - [ ] complete README.md
 
 

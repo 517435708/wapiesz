@@ -2,6 +2,7 @@ import pandas as pd
 import kaggle
 from PIL import Image
 from sklearn.model_selection import train_test_split
+import ast
 
 from ai.datasets.helper import download_img, strip_and_lower, prune_data
 from ai.datasets.plotter import show_plots
@@ -29,27 +30,31 @@ def download_images():
 
 def prepare_text(with_plots=False):
     data = pd.read_csv(kaggle_text_path, sep='\t')
-    data = data.drop(columns=['ImageURL', 'AltText', 'HashId'])
+    data = data.drop(columns=['AltText'])
+    data = data.drop_duplicates(subset=['HashId'])
     prune_data(data)
-    data.to_csv(memes_file, sep=',', index=False)
+    data.to_csv(memes_file, sep='|', index=False)
 
     if with_plots:
         show_plots(data)
 
 
 def get_memes_dataframe():
-    return pd.read_csv(memes_file, sep='\t')
+    df = pd.read_csv(memes_file, sep='|', converters={'CaptionText': ast.literal_eval})
+    return df
 
 
 def get_PIL_images():
     pil_images_list = []
-
+    filenames = []
     import glob
+    import re
     for filename in glob.glob(memes_path + '/*.jpg'):
         im = Image.open(filename)
         pil_images_list.append(im)
+        filenames.append(re.findall(r'[^\/]+(?=\.)', filename[2:]))
 
-    return pil_images_list
+    return pil_images_list, filenames
 
 
 def train_validate_test_split(df, label_column, train_percent=.6, validate_percent=.4, train_test_ratio=0.5):

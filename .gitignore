@@ -5,3 +5,5 @@ datasets/*
 ImgFlip575K_Dataset
 
 *.pyc
+
+memenet.data/

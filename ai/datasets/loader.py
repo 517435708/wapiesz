@@ -52,7 +52,7 @@ def get_PIL_images():
     for filename in glob.glob(memes_path + '/*.jpg'):
         im = Image.open(filename)
         pil_images_list.append(im)
-        filenames.append(re.findall(r'[^\/]+(?=\.)', filename[2:]))
+        filenames.append(re.findall(r'[^\/]+(?=\.)', filename[2:])[0])
 
     return pil_images_list, filenames
 

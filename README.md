@@ -39,6 +39,9 @@ Run [playground_dataset](ai/playground_datasets.py) if any problem occurs try:
 4.mv ~/Downloads/kaggle.json ./
 5.chmod 600 ./kaggle.json 
 ```
+
+add memes_img and memes_txt directories inside datasets directory
+
 Then run [make_dataset](memenet/make_dataset.py), so you get vec_txt and vec_img csv files
 
 #### how to use

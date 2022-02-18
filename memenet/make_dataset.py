@@ -2,13 +2,16 @@ from img2vec_pytorch import Img2Vec
 from gensim.models.doc2vec import Doc2Vec
 import ai.datasets.loader as loader
 import pandas as pd
-import numpy as np
 
 prepare_img_vec = False
-prepare_txt_vec = True
+prepare_txt_vec = False
+
+import torch
+print(torch.cuda.is_available())
+
 
 if prepare_img_vec:
-    img2vec = Img2Vec(cuda=False)
+    img2vec = Img2Vec(cuda=True)
     list_of_pil_images, filenames = loader.get_PIL_images()
     img_emb = img2vec.get_vec(list_of_pil_images)
 

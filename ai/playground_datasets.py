@@ -3,11 +3,11 @@ import ai.datasets.loader as loader
     Before any work set all True
 """
 # memes dataset
-reload = False
+reload = True
 if reload:
     loader.import_memes()
 
-upload_images = False
+upload_images = True
 if upload_images:
     loader.download_images()
 

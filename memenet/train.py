@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch as T
-import torch.nn.functional as F
-import torch.nn as nn
+import random
 
 from math import ceil
 from memenet.utils import pad_epoch, total_param_count
@@ -14,7 +13,7 @@ def meme_loss(Y1, Y2):
     return ((Y1 - Y2) ** 2).sum(1).mean()  # euclidean whatever
 
 
-def meme_train(*, img_net, txt_net, img_emb, txt_emb, epochs=50, batch_size=1024, lr=0.005):
+def meme_train(*, img_net, txt_net, img_emb, txt_emb, epochs=50, batch_size=1024, lr=1e-5):
     # TODO: early stopping, MAYBE lr decay if learning is too aggressive
     assert img_emb.shape[0] == txt_emb.shape[0]
     n_samples = img_emb.shape[0]
@@ -39,6 +38,26 @@ def meme_train(*, img_net, txt_net, img_emb, txt_emb, epochs=50, batch_size=1024
                 end='')
         print(f' | epoch loss {np.mean(epoch_loss):.4f}')
 
+def meme_test(*, img_net, txt_net, img_emb, txt_emb, batch_size=1024, lr=1e-5):
+    # Testing the model
+    assert img_emb.shape[0] == txt_emb.shape[0]
+
+    img_net.eval()
+    txt_net.eval()
+    with T.no_grad():
+        n_samples = img_emb.shape[0]
+        n_batches = int(ceil(n_samples / batch_size))
+        indices = np.random.choice(n_samples, n_samples, replace=False)
+        for batch_idx in range(n_batches):
+            batch = indices[batch_idx * batch_size:min((batch_idx + 1) * batch_size, n_samples)]
+            x_img = img_emb[batch]
+            x_txt = txt_emb[batch]
+            Y_img = img_net(x_img)
+            Y_txt = txt_net(x_txt)
+            loss = meme_loss(Y_img, Y_txt)
+
+            print(f' | batch loss {float(loss):.4f}')
+
 
 if __name__ == '__main__':
     from datetime import datetime
@@ -57,8 +76,17 @@ if __name__ == '__main__':
     print('ImgNet param count:', total_param_count(img_net))
     print('TxtNet param count:', total_param_count(txt_net))
 
-    meme_train(img_net=img_net, txt_net=txt_net, img_emb=img_tr, txt_emb=txt_tr, epochs=5)
+    test_size = 40000
+    test_idx = random.sample(range(txt_tr.shape[0]), test_size)
+    img_test = img_tr[test_idx]
+    txt_test = txt_tr[test_idx]
 
+    train_idx = [i not in test_idx for i in range(txt_tr.shape[0])]
+    img_train = img_tr[train_idx]
+    txt_train = txt_tr[train_idx]
+
+    meme_train(img_net=img_net, txt_net=txt_net, img_emb=img_train, txt_emb=txt_train, epochs=20)
+    meme_test(img_net=img_net, txt_net=txt_net, img_emb=img_test, txt_emb=txt_test)
     timestamp = datetime.now().strftime('%Y%m%dT%H%M%S')
     T.save(img_net, f'data/img_net-{timestamp}.pt')
     T.save(txt_net, f'data/txt_net-{timestamp}.pt')

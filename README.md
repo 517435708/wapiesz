@@ -1,66 +1,28 @@
-# config
-
-- working on latest Anaconda3 version: https://www.anaconda.com/products/individual
-- CUDA: `conda install -c anaconda cudatoolkit=11.3`
-- cudnn `conda install -c anaconda cudnn=8.2.1=cuda11.3_0`
----
-
 # How to run files in `memenet`
 
+1. Install PyTorch however you want
+2. Install requirements `pip install -r requirements.txt`
+3. Download doc2vec [here](https://github.com/kongyq/Pretrained_Wikipedia_Doc2Vec_Models) and place files in `data/doc2vec/`
+4. Download the dataset [here](https://www.kaggle.com/datasets/abhishtagatya/imgflipscraped-memes-caption-dataset) and place files in `data/memes/`
+6. Train MemeNet by running `python -m memenet.train` in the same directory as `README.md`
+7. Run streamlit app `streamlit run app.py`
+
+If something is not working, first ensure that the `data/` directory looks like this:
+
 ```
-# 1. install PyTorch however you want
-
-# 2. install requirements
-pip install -r requirements.txt
-
-(if you need doc2vec model)
-# 3. download model from https://github.com/kongyq/Pretrained_Wikipedia_Doc2Vec_Models 
-and add it to memenet/data 
-and go to: Datasets section
-NOTE: prepared vectors: https://drive.google.com/file/d/1OiW03hEBjwM5ODuy3a3un2TySZQp_DXl/view?usp=sharing
-
-# 4. train imgnet and txtnet
-# run this cmd in the same directory as README.md
-python -m memenet.train
-
-# 5. run streamlit app
-streamlit run memenet/app.py
-```
-## important libraries
-
-`tensorflow==2.4.0`
-<a name="custom_anchor_name"></a>
-## Datasets
-Run [playground_dataset](ai/playground_datasets.py) if any problem occurs try:
-```
-1.pip install kaggle
-2.cd ~/.kaggle
-3.homepage www.kaggle.com -> Your Account -> Create New API token
-4.mv ~/Downloads/kaggle.json ./
-5.chmod 600 ./kaggle.json 
+data
+├── doc2vec
+│   ├── doc2vec_wiki_d300_n5_w8_mc50_t12_e10_dbow.model
+│   ├── doc2vec_wiki_d300_n5_w8_mc50_t12_e10_dbow.model.docvecs.vectors_docs.npy
+│   ├── doc2vec_wiki_d300_n5_w8_mc50_t12_e10_dbow.model.trainables.syn1neg.npy
+│   └── doc2vec_wiki_d300_n5_w8_mc50_t12_e10_dbow.model.wv.vectors.npy
+└── memes
+    ├── memes_data.tsv
+    └── memes_reference_data.tsv
 ```
 
-add memes_img and memes_txt directories inside datasets directory
+# GPU Configuration
 
-Then run [make_dataset](memenet/make_dataset.py), so you get vec_txt and vec_img csv files
-
-#### how to use
-
-## progress
-tested on GPUs:
-
-- Nvidia GTX 1050ti (mobile)
-- ...
-
----
-
-### jobs
-
-[BlaiseCz](https://github.com/BlaiseCz):
-- [x] prepare project architecture
-- [x] prepare datasets
-- [ ] complete README.md
-
-
-
+- CUDA: `conda install -c anaconda cudatoolkit=11.3`
+- cudnn `conda install -c anaconda cudnn=8.2.1=cuda11.3_0`
 

@@ -1,92 +1,71 @@
 import numpy as np
-import pandas as pd
 import torch as T
-import random
 
-from math import ceil
-from memenet.utils import pad_epoch, total_param_count
+import memenet
+from memenet import memes, meme_templates
 from memenet.models import ImgNet, TxtNet
+from memenet.utils import *
 
+meme_loss = T.nn.TripletMarginLoss()
 
-def meme_loss(Y1, Y2):
-    # return F.cosine_similarity(Y1, Y2, dim=1).mean()
-    return ((Y1 - Y2) ** 2).sum(1).mean()  # euclidean whatever
+def distance(a, b):
+    return ((a - b)**2).sum(1)
 
-
-def meme_train(*, img_net, txt_net, img_emb, txt_emb, epochs=50, batch_size=1024, lr=1e-5):
-    # TODO: early stopping, MAYBE lr decay if learning is too aggressive
-    assert img_emb.shape[0] == txt_emb.shape[0]
-    n_samples = img_emb.shape[0]
-    n_batches = int(ceil(n_samples / batch_size))
-    optim = T.optim.AdamW(list(img_net.parameters()) + list(txt_net.parameters()), lr=lr)
+def meme_train(*, img_net, txt_net, memes, img_emb, txt_emb, epochs=6, batch_size=32, lr=1e-4):
+    history = []
+    optim = T.optim.AdamW(txt_net.parameters(), lr=lr)
+    train_memes, test_memes = memes[memes.set == 'train'], memes[memes.set == 'test']
+    templates = list(train_memes.template_file.unique())
+    n_samples = len(train_memes)
     for epoch in range(epochs):
-        indices = np.random.choice(n_samples, n_samples, replace=False)
-        epoch_loss = []
-        for batch_idx in range(n_batches):
-            batch = indices[batch_idx * batch_size:min((batch_idx + 1) * batch_size, n_samples)]
-            x_img = img_emb[batch]
-            x_txt = txt_emb[batch]
-            Y_img = img_net(x_img)
-            Y_txt = txt_net(x_txt)
-            loss = meme_loss(Y_img, Y_txt)
+        txt_net.train()
+        train_losses = []
+        batches = minibatches(T.randperm(n_samples), batch_size)
+        for batch_idx, batch in enumerate(batches):
+            Y_sim = T.stack([img_emb[name] for name in train_memes.iloc[batch].template_file])
+            Y_dis = T.stack([img_emb[random_choice(templates, exclude=name)] for name in train_memes.iloc[batch].template_file])
+            X_txt = T.stack([txt_emb[caption] for caption in train_memes.iloc[batch].caption])
+            Y_txt = txt_net(X_txt)
+            
+            loss = meme_loss(Y_txt, Y_sim, Y_dis)
             loss.backward()
             optim.step()
             optim.zero_grad()
-            epoch_loss.append(float(loss))
-            print(
-                f'\repoch {pad_epoch(epoch + 1, epochs)}/{epochs} | batch {pad_epoch(batch_idx + 1, n_batches)}/{n_batches} | batch loss {loss:.4f}',
-                end='')
-        print(f' | epoch loss {np.mean(epoch_loss):.4f}')
-
-def meme_test(*, img_net, txt_net, img_emb, txt_emb, batch_size=1024, lr=1e-5):
-    # Testing the model
-    assert img_emb.shape[0] == txt_emb.shape[0]
-
-    img_net.eval()
-    txt_net.eval()
-    with T.no_grad():
-        n_samples = img_emb.shape[0]
-        n_batches = int(ceil(n_samples / batch_size))
-        indices = np.random.choice(n_samples, n_samples, replace=False)
-        for batch_idx in range(n_batches):
-            batch = indices[batch_idx * batch_size:min((batch_idx + 1) * batch_size, n_samples)]
-            x_img = img_emb[batch]
-            x_txt = txt_emb[batch]
-            Y_img = img_net(x_img)
-            Y_txt = txt_net(x_txt)
-            loss = meme_loss(Y_img, Y_txt)
-
-            print(f' | batch loss {float(loss):.4f}')
-
+            train_losses.append(loss.item())
+            train_loss = np.mean(train_losses)
+            prefix = f'\repoch {prog(epoch+1, epochs)} | batch {prog(batch_idx+1, len(batches))} | train loss {train_loss:.4f}'
+            print(f'{prefix}', end='')
+            
+        txt_net.eval()
+        with T.no_grad():
+            Y_te_img = T.stack([img_emb[filename] for filename in templates])
+            X_te_txt = T.stack([txt_emb[caption] for caption in test_memes.caption])
+            Y_te_txt = txt_net(X_te_txt)
+            
+            acc = []
+            for txt_index, vector in enumerate(Y_te_txt):
+                img_indices = T.argsort(distance(vector, Y_te_img))
+                y = test_memes.iloc[txt_index].template_file[0]
+                i = 1
+                for img_index in img_indices:
+                    if templates[img_index] == y:
+                        break
+                    i += 1
+                acc.append(1 / i)
+            acc = np.mean(acc)
+                
+        history.append(dict(epoch=epoch, train_loss=train_loss, hits=acc))
+        print(f'{prefix} | discounted accuracy {acc:.4f} (test)')
+        
+    return history
 
 if __name__ == '__main__':
-    from datetime import datetime
+    img_emb = memenet.dataset.load_image_vectors()
+    txt_emb = memenet.dataset.load_text_vectors()
 
-    data_path = 'data/'
-    # load image and text embeddings
-    # learn on random noise for now
-    data_img = pd.read_pickle(data_path + 'img_vec.pkl')
-    data_txt = pd.read_pickle(data_path + 'txt_vec.pkl')
-    full_data = pd.merge(data_img, data_txt, on=['MemeLabel'], how="left", left_index=True)
+    img_net = ImgNet()
+    txt_net = TxtNet(hidden_dim=128, output_dim=512)
+    print('ImgNet param count:', param_count(img_net))
+    print('TxtNet param count:', param_count(txt_net))
 
-    img_tr = T.tensor(full_data['MemeVector'])
-    txt_tr = T.tensor(full_data['TextVector'])
-    img_net = ImgNet(hidden_dim=128)
-    txt_net = TxtNet()
-    print('ImgNet param count:', total_param_count(img_net))
-    print('TxtNet param count:', total_param_count(txt_net))
-
-    test_size = 40000
-    test_idx = random.sample(range(txt_tr.shape[0]), test_size)
-    img_test = img_tr[test_idx]
-    txt_test = txt_tr[test_idx]
-
-    train_idx = [i not in test_idx for i in range(txt_tr.shape[0])]
-    img_train = img_tr[train_idx]
-    txt_train = txt_tr[train_idx]
-
-    meme_train(img_net=img_net, txt_net=txt_net, img_emb=img_train, txt_emb=txt_train, epochs=20)
-    meme_test(img_net=img_net, txt_net=txt_net, img_emb=img_test, txt_emb=txt_test)
-    timestamp = datetime.now().strftime('%Y%m%dT%H%M%S')
-    T.save(img_net, f'data/img_net-{timestamp}.pt')
-    T.save(txt_net, f'data/txt_net-{timestamp}.pt')
+    meme_train(img_net=img_net, txt_net=txt_net, memes=memes, img_emb=img_emb, txt_emb=txt_emb)
